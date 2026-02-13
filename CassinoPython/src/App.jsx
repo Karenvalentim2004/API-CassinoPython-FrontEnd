@@ -14,7 +14,6 @@ function App() {
     setGirando(true);
     setMensagem("");
 
-    // Animação
     const intervalo = setInterval(() => {
       setResultado([
         simbolos[Math.floor(Math.random() * simbolos.length)],
@@ -23,15 +22,23 @@ function App() {
       ]);
     }, 100);
 
+    let data = null;
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/jogar`, {
         method: "POST",
       });
-  
-      const data = await response.json();
 
-      setTimeout(() => {
-        clearInterval(intervalo);
+      data = await response.json();
+    } catch (error) {
+      setMensagem("Erro ao conectar com o servidor");
+    }
+
+    // 🔥 sempre para após 1.5s
+    setTimeout(() => {
+      clearInterval(intervalo);
+
+      if (data) {
         setResultado(data.resultado);
 
         if (data.status === "WIN") {
@@ -41,15 +48,12 @@ function App() {
         } else {
           setMensagem("😢 Não foi dessa vez");
         }
+      }
 
-        setGirando(false);
-      }, 1500);
-    } catch (error) {
-      clearInterval(intervalo);
-      setMensagem("Erro ao conectar com o servidor");
       setGirando(false);
-    }
+    }, 1500);
   };
+
 
   return (
     <div className="container">
